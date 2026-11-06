@@ -1,0 +1,70 @@
+// ==========================================
+// CASO DE PRUEBA 1: Autenticación Exitosa
+// ==========================================
+PRUEBA_UNITARIA Test_IniciarSesion_UsuarioValido()
+    // 1. Preparación (Arrange)
+    usuario = "nestor_ortiz"
+    password = "password123"
+
+    // 2. Ejecución (Act)
+    resultado = IniciarSesion(usuario, password)
+
+    // 3. Afirmación / Verificación (Assert)
+    AFIRMAR(resultado.exitoso ES VERDADERO)
+    AFIRMAR(resultado.usuario_id ES DIFERENTE DE NULO)
+FIN PRUEBA_UNITARIA
+
+
+// ==========================================
+// CASO DE PRUEBA 2: Consulta de Calificaciones por Bimestre
+// ==========================================
+PRUEBA_UNITARIA Test_ConsultarCalificaciones_RetornaListaCorrecta()
+    // 1. Preparación (Arrange)
+    usuario_id = 101
+    bimestre = 1
+
+    // 2. Ejecución (Act)
+    calificaciones = ConsultarCalificaciones(usuario_id, bimestre)
+
+    // 3. Afirmación / Verificación (Assert)
+    AFIRMAR(LONGITUD(calificaciones) > 0)
+    AFIRMAR(calificaciones[0].nota >= 0 Y calificaciones[0].nota <= 100)
+FIN PRUEBA_UNITARIA
+
+
+// ==========================================
+// CASO DE PRUEBA 3: Consolidación de Datos con Estructura Correcta
+// ==========================================
+PRUEBA_UNITARIA Test_ConsolidarDatos_FormatoCorrecto()
+    // 1. Preparación (Arrange)
+    materias_mock = ["Matemáticas", "Programación"]
+    maestros_mock = ["Prof. García", "Ing. López"]
+    calificaciones_mock = [95, 100]
+
+    // 2. Ejecución (Act)
+    resultado = ConsolidarDatos(materias_mock, maestros_mock, calificaciones_mock)
+
+    // 3. Afirmación / Verificación (Assert)
+    // Verifica el orden especifico [Materia, Maestro, Calificacion]
+    AFIRMAR(LONGITUD(resultado) == 2)
+    AFIRMAR(resultado[0][0] == "Matemáticas")   // Materia
+    AFIRMAR(resultado[0][1] == "Prof. García")   // Maestro
+    AFIRMAR(resultado[0][2] == 95)             // Calificación
+FIN PRUEBA_UNITARIA
+
+
+// ==========================================
+// CASO DE PRUEBA 4: Consolidación con Datos Vacíos (Caso Límite)
+// ==========================================
+PRUEBA_UNITARIA Test_ConsolidarDatos_ListaVacia()
+    // 1. Preparación (Arrange)
+    materias_vacias = LISTA_VACIA
+    maestros_vacios = LISTA_VACIA
+    calificaciones_vacias = LISTA_VACIA
+
+    // 2. Ejecución (Act)
+    resultado = ConsolidarDatos(materias_vacias, maestros_vacios, calificaciones_vacias)
+
+    // 3. Afirmación / Verificación (Assert)
+    AFIRMAR(LONGITUD(resultado) == 0)
+FIN PRUEBA_UNITARIA
