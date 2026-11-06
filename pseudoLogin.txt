@@ -1,0 +1,187 @@
+BASE DE DATOS
+TABLA Usuarios
+    id                  entero, clave primaria
+    nombre_usuario      texto, único
+    correo              texto, único
+    password_hash       texto
+    intentos_fallidos   entero, valor inicial 0
+    bloqueada           booleano, valor inicial falso
+    activa              booleano, valor inicial verdadero
+
+TABLA TokensRecuperacion
+    id                  entero, clave primaria
+    usuario_id          entero, referencia a Usuarios.id
+    token_hash          texto
+    expira_en            fecha_hora
+    usado                booleano, valor inicial falso
+
+
+PANTALLA DE ACCESO
+PROCEDIMIENTO mostrarPantallaLogin()
+    MOSTRAR campo "Usuario"
+    MOSTRAR campo "Contraseña"
+    MOSTRAR botón "Iniciar sesión"
+    MOSTRAR enlace "¿Olvidaste tu contraseña?"
+FIN PROCEDIMIENTO
+
+
+INICIO DE SESION
+
+PROCEDIMIENTO iniciarSesion(nombreUsuario, contraseña)
+    usuario <- BUSCAR Usuario
+                DONDE nombre_usuario = nombreUsuario
+
+    SI usuario NO EXISTE
+        MOSTRAR "Usuario o contraseña incorrectos"
+        REGISTRAR evento de inicio fallido
+        TERMINAR
+    FIN SI
+
+    SI usuario.activa = falso
+        MOSTRAR "La cuenta no está activa"
+        TERMINAR
+    FIN SI
+
+    SI usuario.bloqueada = verdadero
+        MOSTRAR "La cuenta está bloqueada. Restablece tu contraseña o contacta al administrador."
+        TERMINAR
+    FIN SI
+
+    SI verificarHash(contraseña, usuario.password_hash) = verdadero
+        usuario.intentos_fallidos <- 0
+        GUARDAR usuario
+
+        CREAR sesión autenticada para usuario.id
+        MOSTRAR "Inicio de sesión exitoso"
+        REDIRIGIR a "Calificaciones"
+        TERMINAR
+    FIN SI
+
+    usuario.intentos_fallidos <- usuario.intentos_fallidos + 1
+
+    SI usuario.intentos_fallidos >= 3
+        usuario.bloqueada <- verdadero
+        GUARDAR usuario
+        MOSTRAR "Cuenta bloqueada por tres intentos fallidos"
+    SINO
+        GUARDAR usuario
+        MOSTRAR "Usuario o contraseña incorrectos"
+    FIN SI
+
+    REGISTRAR evento de inicio fallido
+FIN PROCEDIMIENTO
+
+
+CAMBIO DE CONTRASEÑA 
+PROCEDIMIENTO solicitarRestablecimiento(correo)
+    usuario <- BUSCAR Usuario
+                DONDE correo = correo
+
+    // Mostrar el mismo mensaje exista o no la cuenta,
+    // para no revelar qué correos están registrados.
+    SI usuario EXISTE Y usuario.activa = verdadero
+        token <- GENERAR token aleatorio seguro
+        tokenHash <- HASH(token)
+        vencimiento <- FECHA_HORA_ACTUAL + duración configurada
+
+        GUARDAR TokenRecuperacion(
+            usuario_id = usuario.id,
+            token_hash = tokenHash,
+            expira_en = vencimiento,
+            usado = falso
+        )
+
+        enlace <- CREAR enlace de recuperación con token
+
+        ENVIAR correo a usuario.correo
+            con el enlace y las instrucciones de recuperación
+    FIN SI
+
+    MOSTRAR "Si el correo está registrado, recibirás instrucciones para restablecer tu contraseña"
+FIN PROCEDIMIENTO
+
+
+RESTABLECER CONTRASEÑA
+PROCEDIMIENTO restablecerContraseña(token, nuevaContraseña)
+    tokenHash <- HASH(token)
+
+    registro <- BUSCAR TokenRecuperacion
+                DONDE token_hash = tokenHash
+                  Y usado = falso
+                  Y expira_en > FECHA_HORA_ACTUAL
+
+    SI registro NO EXISTE
+        MOSTRAR "El enlace no es válido o ha vencido"
+        TERMINAR
+    FIN SI
+
+    SI contraseñaCumplePolitica(nuevaContraseña) = falso
+        MOSTRAR requisitos de contraseña
+        TERMINAR
+    FIN SI
+
+    usuario <- BUSCAR Usuario
+                DONDE id = registro.usuario_id
+
+    SI usuario NO EXISTE
+        MOSTRAR "No fue posible restablecer la contraseña"
+        TERMINAR
+    FIN SI
+
+    usuario.password_hash <- HASH_SEGURO(nuevaContraseña)
+    usuario.intentos_fallidos <- 0
+    usuario.bloqueada <- falso
+
+    registro.usado <- verdadero
+
+    GUARDAR usuario Y registro EN UNA TRANSACCIÓN
+
+    MOSTRAR "Contraseña restablecida correctamente"
+    ENVIAR correo de confirmación al usuario
+FIN PROCEDIMIENTO
+
+
+PRUEBAS UNITARIAS
+PRUEBA login_exitoso
+    DADO un usuario activo con contraseña válida
+    CUANDO intenta iniciar sesión
+    ENTONCES se crea una sesión
+        Y se reinician sus intentos fallidos
+        Y se le dirige a Calificaciones
+
+PRUEBA login_con_contraseña_incorrecta
+    DADO un usuario activo
+    CUANDO ingresa una contraseña incorrecta
+    ENTONCES aumenta el contador de intentos fallidos
+        Y se muestra un mensaje genérico de error
+
+PRUEBA bloqueo_al_tercer_intento
+    DADO un usuario activo con dos intentos fallidos
+    CUANDO vuelve a ingresar una contraseña incorrecta
+    ENTONCES la cuenta queda bloqueada
+
+PRUEBA login_de_cuenta_bloqueada
+    DADO un usuario con la cuenta bloqueada
+    CUANDO intenta iniciar sesión con credenciales válidas
+    ENTONCES no se crea una sesión
+        Y se informa que la cuenta está bloqueada
+
+PRUEBA restablecimiento_de_contraseña
+    DADO un usuario con un token válido
+    CUANDO envía una contraseña que cumple la política
+    ENTONCES se actualiza el hash de contraseña
+        Y el token queda marcado como usado
+        Y se desbloquea la cuenta
+        Y el contador de intentos queda en cero
+
+PRUEBA token_vencido_o_usado
+    DADO un token vencido o previamente usado
+    CUANDO el usuario intenta restablecer su contraseña
+    ENTONCES el cambio es rechazado
+
+PRUEBA solicitud_para_correo_no_registrado
+    DADO un correo que no pertenece a un usuario
+    CUANDO se solicita restablecer la contraseña
+    ENTONCES se muestra el mismo mensaje general
+        Y no se revela si el correo está registrado
+
