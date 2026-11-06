@@ -1,0 +1,161 @@
+/////Pantalla////
+# ============================================================
+# SISTEMA DE CALIFICACIONES - PANEL DEL MAESTRO (Pseudocódigo)
+# ============================================================
+
+# ─────────────────────────────────────
+# IMPORTS
+# ─────────────────────────────────────
+IMPORTAR librería_interfaz_gráfica
+IMPORTAR librería_base_de_datos
+IMPORTAR librería_gráficos
+
+
+# ─────────────────────────────────────
+# CONEXIÓN A BASE DE DATOS
+# ─────────────────────────────────────
+FUNCIÓN conectar_bd():
+    RETORNAR conexión a "escuela.db"
+
+
+# ─────────────────────────────────────
+# VARIABLES GLOBALES
+# ─────────────────────────────────────
+ID_MAESTRO      = <id del maestro en sesión>
+COLUMNAS        = [id_alumno, nombre_alumno, materia, calificacion]
+FILTRO_ALUMNO   = ""
+FILTRO_MATERIA  = ""
+ORDEN_CAL       = "mayor a menor"
+
+
+# ─────────────────────────────────────
+# PANTALLA PRINCIPAL
+# ─────────────────────────────────────
+FUNCIÓN iniciar_app():
+    CREAR ventana principal
+
+    LLAMAR construir_filtros()
+    LLAMAR construir_tabla()
+    LLAMAR construir_botones()
+    LLAMAR cargar_alumnos()
+
+    MOSTRAR ventana
+
+
+# ─────────────────────────────────────
+# SECCIÓN: FILTROS
+# ─────────────────────────────────────
+FUNCIÓN construir_filtros():
+    CREAR sección "Filtros" en ventana
+
+    AGREGAR campo de texto  → FILTRO_ALUMNO
+    AGREGAR campo de texto  → FILTRO_MATERIA
+    AGREGAR selector orden  → ["Mayor a menor", "Menor a mayor"]
+    AGREGAR botón "Filtrar" → AL HACER CLIC: LLAMAR cargar_alumnos()
+
+
+# ─────────────────────────────────────
+# SECCIÓN: TABLA DE ALUMNOS
+# ─────────────────────────────────────
+FUNCIÓN construir_tabla():
+    CREAR tabla con columnas: [ID, Alumno, Materia, Calificación]
+    AGREGAR barra de desplazamiento vertical
+
+    AL DOBLE CLIC en fila:
+        LLAMAR editar_calificacion(fila_seleccionada)
+
+
+# ─────────────────────────────────────
+# SECCIÓN: BOTONES
+# ─────────────────────────────────────
+FUNCIÓN construir_botones():
+    AGREGAR botón "💬 Mensajes"  → AL HACER CLIC: LLAMAR abrir_mensajes()
+    AGREGAR botón "📊 Gráfico"   → AL HACER CLIC: LLAMAR mostrar_grafico()
+    AGREGAR botón "🔄 Actualizar"→ AL HACER CLIC: LLAMAR cargar_alumnos()
+
+
+# ─────────────────────────────────────
+# LÓGICA: CARGAR ALUMNOS
+# ─────────────────────────────────────
+FUNCIÓN cargar_alumnos():
+    LIMPIAR tabla
+
+    CONSULTAR base_de_datos:
+        OBTENER id_alumno, nombre_alumno, materia, calificacion
+        DONDE  id_maestro = ID_MAESTRO
+          Y    nombre_alumno CONTIENE FILTRO_ALUMNO
+          Y    materia       CONTIENE FILTRO_MATERIA
+        ORDENAR POR calificacion SEGÚN ORDEN_CAL
+
+    PARA CADA fila en resultados:
+        INSERTAR fila en tabla
+
+
+# ─────────────────────────────────────
+# LÓGICA: EDITAR CALIFICACIÓN
+# ─────────────────────────────────────
+FUNCIÓN editar_calificacion(fila):
+    MOSTRAR diálogo "Nueva calificación para [alumno] – [materia]"
+
+    SI usuario ingresó valor válido (0-10):
+        ACTUALIZAR base_de_datos:
+            SET calificacion = nuevo_valor
+            DONDE id_alumno = fila.id_alumno
+              Y   materia   = fila.materia
+              Y   id_maestro= ID_MAESTRO
+
+        LLAMAR cargar_alumnos()
+
+
+# ─────────────────────────────────────
+# LÓGICA: MENSAJES
+# ─────────────────────────────────────
+FUNCIÓN abrir_mensajes():
+    SI hay fila seleccionada:
+        id_alumno = fila_seleccionada.id_alumno
+
+    ABRIR ventana nueva "Mensajes"
+
+    CONSULTAR base_de_datos:
+        OBTENER remitente, mensaje, fecha
+        DONDE id_maestro = ID_MAESTRO
+          Y   id_alumno  = id_alumno
+        ORDENAR POR fecha ASC
+
+    MOSTRAR mensajes en área de chat
+
+    AGREGAR campo de texto para escribir mensaje
+    AGREGAR botón "Enviar":
+        AL HACER CLIC:
+            GUARDAR mensaje en base_de_datos
+            RECARGAR chat
+
+
+# ─────────────────────────────────────
+# LÓGICA: GRÁFICO
+# ─────────────────────────────────────
+FUNCIÓN mostrar_grafico():
+    OBTENER datos actuales de tabla (con filtros aplicados)
+
+    SI no hay datos:
+        MOSTRAR aviso "Sin datos para graficar"
+        TERMINAR
+
+    etiquetas = [nombre_alumno + materia  PARA CADA fila]
+    valores   = [calificacion             PARA CADA fila]
+
+    ABRIR ventana nueva "Gráfico"
+    DIBUJAR gráfico de barras horizontales:
+        Eje X → Calificación (0 a 10)
+        Eje Y → Alumno / Materia
+        MOSTRAR valor numérico sobre cada barra
+
+
+# ─────────────────────────────────────
+# ENTRY POINT
+# ─────────────────────────────────────
+SI archivo ejecutado directamente:
+    LLAMAR iniciar_app()
+
+
+
