@@ -1,0 +1,15 @@
+*Pruebas unitarias*
+
+*prueba que confirme que se vea el listado*
+
+*Prueba que confirme que se muestren los datos requeridos en el listado*
+
+*Prueba que confirme que se pueda filtrar por materia o por alumno*
+
+*Prueba para verificar que se pueda ordenar el listado de calificaciones de diferente*
+
+*Preuba para verificar que se asome pantalla de mensajes*
+
+*Prueba que verifica que la pantalla de graficos sea visible*
+
+*Prueba que verifique que se muestren los graficos correctamente*
