@@ -1,0 +1,26 @@
+1. INICIO
+2. Usuario inicia sesión
+3. Se despliega las calificaciones completas del usuario, teniendo en cuenta la materia, el maestro y la calificación del bimestre
+4. El usuario elige una opción:
+    a) Filtrar por Materia
+    b) Filtrar por maestro
+    c) Filtrar por calificación
+
+5. Si el usuario elige filtrado por materia
+     Se integra la materia seleccionada por el usuario
+    Se consulta en la base de datos las calificaciones del usuario teniendo en cuenta la materia especifica mencionada por el usuario
+    Se despliega las calificaciones de la materia seleccionada del usuario
+    Fin de filtrado por "Materia"
+
+6. Si el usuario elige filtrado por materia
+    Se integra el maestro seleccioando por el usuario
+    Se consulta en la base de datos las calificacioens del usuario teniendo en cuenta el maestro especifico mencionado por el usuario
+    Se despliega las calificaciones del usuario teniendo en cuenta el Maestro
+    Fin de filtrado por "Maestro"
+
+7. Si el usuario elige ordenar por calificación
+    El usuario elige orden ascendente o descendente
+    El sistema ordena las calificaciones
+    El sistema muestra los resultados ordenados
+    Fin proceso ordenar por califcación
+FIN

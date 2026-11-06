@@ -1,0 +1,65 @@
+══════════════════════════════════════════════════════════
+  HU-01 · PSEUDOCÓDIGO DE INICIO DE SESIÓN
+══════════════════════════════════════════════════════════
+
+PANTALLA DE ACCESO
+──────────────────
+PROCEDIMIENTO mostrarPantallaLogin()
+    MOSTRAR campo "Usuario"
+    MOSTRAR campo "Contraseña"
+    MOSTRAR botón "Iniciar sesión"
+    MOSTRAR enlace "¿Olvidaste tu contraseña?"
+FIN PROCEDIMIENTO
+
+VALIDACIÓN DE CREDENCIALES
+─────────────────────────
+PROCEDIMIENTO iniciarSesion(nombreUsuario, contraseña)
+    usuario <- BUSCAR Usuario DONDE nombre_usuario = nombreUsuario
+
+    SI usuario NO EXISTE ENTONCES
+        REGISTRAR evento de inicio fallido
+        MOSTRAR "Usuario o contraseña incorrectos"
+        TERMINAR
+    FIN SI
+
+    SI usuario.activa = falso ENTONCES
+        MOSTRAR "La cuenta no está activa"
+        TERMINAR
+    FIN SI
+
+    SI usuario.bloqueada = verdadero ENTONCES
+        MOSTRAR "La cuenta está bloqueada. Restablece tu contraseña
+                 o contacta al administrador."
+        TERMINAR
+    FIN SI
+
+    SI verificarHash(contraseña, usuario.password_hash) = verdadero
+        usuario.intentos_fallidos <- 0
+        GUARDAR usuario
+        CREAR sesión autenticada para usuario.id
+        MOSTRAR "Inicio de sesión exitoso"
+        REDIRIGIR a "Calificaciones"
+        TERMINAR
+    FIN SI
+
+    usuario.intentos_fallidos <- usuario.intentos_fallidos + 1
+
+    SI usuario.intentos_fallidos >= 3 ENTONCES
+        usuario.bloqueada <- verdadero
+        GUARDAR usuario
+        MOSTRAR "Cuenta bloqueada por tres intentos fallidos"
+    SINO
+        GUARDAR usuario
+        MOSTRAR "Usuario o contraseña incorrectos"
+    FIN SI
+
+    REGISTRAR evento de inicio fallido
+FIN PROCEDIMIENTO
+
+NOTAS DE IMPLEMENTACIÓN
+───────────────────────
+• Actualizar el contador de intentos de forma atómica.
+• No registrar contraseñas en logs ni mensajes de error.
+• Considerar limitar solicitudes para reducir intentos automatizados.
+
+══════════════════════════════════════════════════════════

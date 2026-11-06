@@ -1,0 +1,12 @@
+1. INICIO
+2. Usuario inicia sesion.
+3. Se consultan las materias del usuario en la base de datos.
+4. Se consultan los maestros del usuario por materia en la base de datos.
+5. Se consultan las calificaciones por bimestre y materia en la base de datos.
+6. Se consolidan los datos con el orden [Materia, Maestro, Calificacion]
+7. Se despliega el consolidado.
+8. Hacer clic sobre el nombre del maestro seleccionado.
+9. Hacer clic sobre el boton "Enviar Mensaje".
+10. Escribir mensaje.
+11. Hacer clic sobre el boton "Enviar"
+12. FIN.
