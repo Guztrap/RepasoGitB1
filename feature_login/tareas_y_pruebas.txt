@@ -1,0 +1,57 @@
+══════════════════════════════════════════════════════════
+  HU-01 · TAREAS Y PRUEBAS UNITARIAS
+══════════════════════════════════════════════════════════
+
+TAREAS DE IMPLEMENTACIÓN
+────────────────────────
+[ ] Crear pantalla de login con campos de usuario y contraseña.
+[ ] Implementar búsqueda de usuario y verificación del hash.
+[ ] Contabilizar intentos fallidos y bloquear al tercer intento.
+[ ] Crear tablas de usuarios y tokens de recuperación.
+[ ] Implementar solicitud de restablecimiento y envío de correo.
+[ ] Implementar validación del token y cambio de contraseña.
+[ ] Agregar mensajes de error y éxito adecuados.
+[ ] Registrar eventos sin guardar contraseñas o tokens en texto plano.
+[ ] Escribir y ejecutar pruebas unitarias.
+
+PRUEBAS UNITARIAS
+─────────────────
+PRUEBA login_exitoso
+    DADO un usuario activo con contraseña válida
+    CUANDO intenta iniciar sesión
+    ENTONCES se crea una sesión, se reinician los intentos
+             y se le dirige a Calificaciones
+
+PRUEBA login_con_contraseña_incorrecta
+    DADO un usuario activo
+    CUANDO ingresa una contraseña incorrecta
+    ENTONCES aumenta el contador y se muestra un error genérico
+
+PRUEBA bloqueo_al_tercer_intento
+    DADO un usuario activo con dos intentos fallidos
+    CUANDO vuelve a ingresar una contraseña incorrecta
+    ENTONCES la cuenta queda bloqueada
+
+PRUEBA login_de_cuenta_bloqueada
+    DADO un usuario con la cuenta bloqueada
+    CUANDO intenta iniciar sesión con credenciales válidas
+    ENTONCES no se crea una sesión y se informa que está bloqueada
+
+PRUEBA restablecimiento_de_contraseña
+    DADO un usuario con un token válido
+    CUANDO envía una contraseña que cumple la política
+    ENTONCES se actualiza el hash, se consume el token,
+             se desbloquea la cuenta y los intentos quedan en cero
+
+PRUEBA token_vencido_o_usado
+    DADO un token vencido o previamente usado
+    CUANDO se intenta restablecer la contraseña
+    ENTONCES el cambio es rechazado
+
+PRUEBA solicitud_para_correo_no_registrado
+    DADO un correo que no pertenece a un usuario
+    CUANDO se solicita restablecer la contraseña
+    ENTONCES se muestra el mismo mensaje general y no se revela
+             si el correo está registrado
+
+══════════════════════════════════════════════════════════
