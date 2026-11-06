@@ -1,0 +1,189 @@
+# ============================================================
+# PRUEBAS UNITARIAS - PANEL DEL MAESTRO (Pseudocódigo)
+# ============================================================
+
+
+# ─────────────────────────────────────
+# CONFIGURACIÓN GENERAL
+# ─────────────────────────────────────
+ANTES DE CADA PRUEBA:
+    CREAR base_de_datos temporal en memoria
+    INSERTAR datos de prueba:
+        - Maestro  con id = 1
+        - Alumno_1 "Juan Pérez"   → Materia "Matemáticas" → Calificación 9.0
+        - Alumno_2 "Ana López"    → Materia "Historia"    → Calificación 7.5
+        - Alumno_3 "Luis Torres"  → Materia "Matemáticas" → Calificación 6.0
+    INICIAR aplicación con ID_MAESTRO = 1
+
+DESPUÉS DE CADA PRUEBA:
+    CERRAR aplicación
+    ELIMINAR base_de_datos temporal
+
+
+# ============================================================
+# PRUEBA 1 — Listado visible
+# ============================================================
+PRUEBA "El listado de alumnos se muestra en pantalla":
+
+    DADO QUE la aplicación está abierta
+    CUANDO se carga la pantalla principal
+
+    ENTONCES:
+        VERIFICAR que la tabla existe en pantalla
+        VERIFICAR que la tabla es visible para el usuario
+        VERIFICAR que la tabla tiene las columnas [ID, Alumno, Materia, Calificación]
+
+    RESULTADO ESPERADO → ÉXITO
+
+
+# ============================================================
+# PRUEBA 2 — Datos requeridos en el listado
+# ============================================================
+PRUEBA "El listado muestra los datos correctos de cada alumno":
+
+    DADO QUE la aplicación está abierta
+    CUANDO se cargan los datos del maestro con ID = 1
+
+    ENTONCES:
+        VERIFICAR que el número de filas en tabla = 3
+        VERIFICAR que fila_1 contiene ["Juan Pérez",  "Matemáticas", 9.0]
+        VERIFICAR que fila_2 contiene ["Ana López",   "Historia",    7.5]
+        VERIFICAR que fila_3 contiene ["Luis Torres", "Matemáticas", 6.0]
+        VERIFICAR que NO aparecen alumnos de otro maestro
+
+    RESULTADO ESPERADO → ÉXITO
+
+
+# ============================================================
+# PRUEBA 3A — Filtro por materia
+# ============================================================
+PRUEBA "Se puede filtrar el listado por materia":
+
+    DADO QUE la aplicación está abierta
+    CUANDO el usuario escribe "Matemáticas" en el campo FILTRO_MATERIA
+      Y   presiona el botón "Filtrar"
+
+    ENTONCES:
+        VERIFICAR que la tabla muestra exactamente 2 filas
+        VERIFICAR que fila_1 contiene "Juan Pérez"
+        VERIFICAR que fila_2 contiene "Luis Torres"
+        VERIFICAR que "Ana López" NO aparece en la tabla
+
+    RESULTADO ESPERADO → ÉXITO
+
+
+# ============================================================
+# PRUEBA 3B — Filtro por alumno
+# ============================================================
+PRUEBA "Se puede filtrar el listado por nombre de alumno":
+
+    DADO QUE la aplicación está abierta
+    CUANDO el usuario escribe "Ana" en el campo FILTRO_ALUMNO
+      Y   presiona el botón "Filtrar"
+
+    ENTONCES:
+        VERIFICAR que la tabla muestra exactamente 1 fila
+        VERIFICAR que la fila contiene ["Ana López", "Historia", 7.5]
+        VERIFICAR que "Juan Pérez"  NO aparece en la tabla
+        VERIFICAR que "Luis Torres" NO aparece en la tabla
+
+    RESULTADO ESPERADO → ÉXITO
+
+
+# ============================================================
+# PRUEBA 4 — Ordenar calificaciones
+# ============================================================
+PRUEBA "Se puede ordenar el listado por calificación":
+
+    CASO A — Mayor a menor:
+        DADO QUE la aplicación está abierta
+        CUANDO el usuario selecciona "Mayor a menor" en el selector de orden
+          Y   presiona el botón "Filtrar"
+
+        ENTONCES:
+            VERIFICAR que fila_1.calificacion = 9.0  (Juan Pérez)
+            VERIFICAR que fila_2.calificacion = 7.5  (Ana López)
+            VERIFICAR que fila_3.calificacion = 6.0  (Luis Torres)
+
+    CASO B — Menor a mayor:
+        DADO QUE la aplicación está abierta
+        CUANDO el usuario selecciona "Menor a mayor" en el selector de orden
+          Y   presiona el botón "Filtrar"
+
+        ENTONCES:
+            VERIFICAR que fila_1.calificacion = 6.0  (Luis Torres)
+            VERIFICAR que fila_2.calificacion = 7.5  (Ana López)
+            VERIFICAR que fila_3.calificacion = 9.0  (Juan Pérez)
+
+    RESULTADO ESPERADO → ÉXITO en ambos casos
+
+
+# ============================================================
+# PRUEBA 5 — Pantalla de mensajes visible
+# ============================================================
+PRUEBA "La pantalla de mensajes se abre correctamente":
+
+    DADO QUE la aplicación está abierta
+      Y   el usuario selecciona la fila de "Juan Pérez" en la tabla
+    CUANDO presiona el botón "💬 Mensajes"
+
+    ENTONCES:
+        VERIFICAR que se abre una ventana nueva
+        VERIFICAR que la ventana tiene título "Mensajes"
+        VERIFICAR que el área de chat es visible
+        VERIFICAR que el campo para escribir mensaje es visible
+        VERIFICAR que el botón "Enviar" es visible
+
+    RESULTADO ESPERADO → ÉXITO
+
+
+# ============================================================
+# PRUEBA 6 — Pantalla de gráfico visible
+# ============================================================
+PRUEBA "La pantalla de gráfico se abre correctamente":
+
+    DADO QUE la aplicación está abierta
+      Y   existen datos cargados en la tabla
+    CUANDO el usuario presiona el botón "📊 Gráfico"
+
+    ENTONCES:
+        VERIFICAR que se abre una ventana nueva
+        VERIFICAR que la ventana tiene título "Gráfico de Calificaciones"
+        VERIFICAR que el área del gráfico es visible
+        VERIFICAR que NO se muestra mensaje de error
+
+    RESULTADO ESPERADO → ÉXITO
+
+
+# ============================================================
+# PRUEBA 7 — Gráfico muestra datos correctamente
+# ============================================================
+PRUEBA "El gráfico refleja los datos reales de calificaciones":
+
+    CASO A — Sin filtros (todos los alumnos):
+        DADO QUE la aplicación está abierta sin filtros aplicados
+        CUANDO el usuario presiona "📊 Gráfico"
+
+        ENTONCES:
+            VERIFICAR que el gráfico contiene exactamente 3 barras
+            VERIFICAR que la barra de "Juan Pérez  / Matemáticas" = 9.0
+            VERIFICAR que la barra de "Ana López   / Historia"    = 7.5
+            VERIFICAR que la barra de "Luis Torres / Matemáticas" = 6.0
+
+    CASO B — Con filtro por materia activo:
+        DADO QUE el filtro FILTRO_MATERIA = "Matemáticas" está aplicado
+        CUANDO el usuario presiona "📊 Gráfico"
+
+        ENTONCES:
+            VERIFICAR que el gráfico contiene exactamente 2 barras
+            VERIFICAR que "Ana López / Historia" NO aparece en el gráfico
+
+    CASO C — Sin datos disponibles:
+        DADO QUE el filtro devuelve 0 resultados
+        CUANDO el usuario presiona "📊 Gráfico"
+
+        ENTONCES:
+            VERIFICAR que NO se abre ventana de gráfico
+            VERIFICAR que se muestra el aviso "Sin datos para graficar"
+
+    RESULTADO ESPERADO → ÉXITO en los tres casos    
