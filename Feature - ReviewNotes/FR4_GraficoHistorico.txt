@@ -1,0 +1,34 @@
+INICIO Programa_Historial_Calificaciones
+
+    // 1. Interfaz de usuario
+    Mostrar el menú principal del estudiante
+    SI el usuario selecciona la opción "Ver gráfico de calificaciones históricas":
+        
+        // 2. Selección de la materia
+        Mostrar la lista de materias cursadas
+        Solicitar al usuario que elija una materia específica
+        Leer y guardar la materia seleccionada
+        
+        // 3. Extracción de datos
+        Consultar la base de datos del sistema:
+            Buscar todas las calificaciones históricas asociadas a esa materia y al usuario actual, ordenadas cronológicamente (por fecha o periodo).
+        
+        // 4. Validación de datos
+        SI se encontraron registros de calificaciones:
+            
+            // 5. Procesamiento para el gráfico
+            Preparar los datos:
+                - Asignar los periodos o fechas al Eje X.
+                - Asignar los valores de las calificaciones al Eje Y.
+            
+            // 6. Visualización
+            Generar un gráfico (por ejemplo, de líneas para ver la evolución o de barras).
+            Mostrar el gráfico generado en la pantalla del usuario.
+            
+        SINO:
+            Mostrar un mensaje en pantalla: "No hay suficientes registros históricos para generar el gráfico de esta materia."
+        FIN SI
+
+    FIN SI
+
+FIN Programa_Historial_Calificaciones
