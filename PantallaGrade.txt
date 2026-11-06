@@ -1,0 +1,23 @@
+/////Pantalla////
+
+*Imports*
+
+*Codigo donde se hace la conexion con la base de datos*
+
+*Codigo asignacion variables de campos de bse de datos*
+
+*Codigo donde se muestra la lista de los alumnos que le 
+corresponden a ese maestro donde sale el nombre del alumno , 
+con la materia y un  espacio para poner la calificacion*
+
+
+*Codigo donde se puede filtrar por materia, por alumno y 
+que se pueda ordenar por califiacion Ej: "de mayor a menor"*
+
+*Codigo donde se muestra un botono para acceder a 
+mensajes entre alumno y maestro*
+
+*Codigo donde se puede generar un grafico 
+consultadno la basede datos para consultar 
+las califiacion por materia y por alumno*
+
