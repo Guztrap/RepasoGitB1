@@ -16,3 +16,12 @@
 - Se debe escribir un archivo en Pseudocódigo con todos los pasos
 - Se debe considerar la parte de base de datos
 - Se debe considerar el generar las pruebas unitarias
+
+
+
+
+
+
+
+
+
