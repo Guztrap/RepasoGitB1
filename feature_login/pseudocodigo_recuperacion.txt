@@ -1,0 +1,75 @@
+══════════════════════════════════════════════════════════
+  HU-01 · PSEUDOCÓDIGO DE RECUPERACIÓN DE CONTRASEÑA
+══════════════════════════════════════════════════════════
+
+SOLICITAR RESTABLECIMIENTO
+──────────────────────────
+PROCEDIMIENTO solicitarRestablecimiento(correo)
+    usuario <- BUSCAR Usuario DONDE correo = correo
+
+    // Usar el mismo mensaje exista o no la cuenta.
+    SI usuario EXISTE Y usuario.activa = verdadero ENTONCES
+        token <- GENERAR token aleatorio seguro
+        tokenHash <- HASH(token)
+        vencimiento <- FECHA_HORA_ACTUAL + duración configurada
+
+        GUARDAR TokenRecuperacion(
+            usuario_id = usuario.id,
+            token_hash = tokenHash,
+            expira_en = vencimiento,
+            usado = falso
+        )
+
+        enlace <- CREAR enlace de recuperación con token
+        ENVIAR correo a usuario.correo con enlace e instrucciones
+    FIN SI
+
+    MOSTRAR "Si el correo está registrado, recibirás instrucciones
+             para restablecer tu contraseña"
+FIN PROCEDIMIENTO
+
+RESTABLECER CONTRASEÑA
+──────────────────────
+PROCEDIMIENTO restablecerContraseña(token, nuevaContraseña)
+    tokenHash <- HASH(token)
+    registro <- BUSCAR TokenRecuperacion
+                DONDE token_hash = tokenHash
+                  Y usado = falso
+                  Y expira_en > FECHA_HORA_ACTUAL
+
+    SI registro NO EXISTE ENTONCES
+        MOSTRAR "El enlace no es válido o ha vencido"
+        TERMINAR
+    FIN SI
+
+    SI contraseñaCumplePolitica(nuevaContraseña) = falso ENTONCES
+        MOSTRAR requisitos de contraseña
+        TERMINAR
+    FIN SI
+
+    usuario <- BUSCAR Usuario DONDE id = registro.usuario_id
+    SI usuario NO EXISTE ENTONCES
+        MOSTRAR "No fue posible restablecer la contraseña"
+        TERMINAR
+    FIN SI
+
+    INICIAR TRANSACCIÓN
+        usuario.password_hash <- HASH_SEGURO(nuevaContraseña)
+        usuario.intentos_fallidos <- 0
+        usuario.bloqueada <- falso
+        registro.usado <- verdadero
+        GUARDAR usuario
+        GUARDAR registro
+    CONFIRMAR TRANSACCIÓN
+
+    MOSTRAR "Contraseña restablecida correctamente"
+    ENVIAR correo de confirmación al usuario
+FIN PROCEDIMIENTO
+
+NOTAS DE SEGURIDAD
+──────────────────
+• Guardar únicamente el hash del token de recuperación.
+• Consumir el token en la misma transacción que actualiza la contraseña.
+• No incluir contraseña ni token en logs.
+
+══════════════════════════════════════════════════════════
